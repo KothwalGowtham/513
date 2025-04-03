@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Typing Test</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #232526, #414345);
+            padding: 20px;
+            color: #ffffff;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.3);
+        }
+        #quote {
+            font-size: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+        }
+        #inputArea {
+            width: 80%;
+            height: 100px;
+            font-size: 18px;
+            margin-top: 10px;
+            border-radius: 10px;
+            padding: 10px;
+            border: none;
+            outline: none;
+            background: #333;
+            color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+        }
+        #timer, #wpmDisplay {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px;
+        }
+        #result {
+            font-size: 24px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.2);
+        }
+        button {
+            background: #ff3c68;
+            color: white;
+            font-size: 18px;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+        }
+        button:hover {
+            background: #d82b5f;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Speed Typing Test</h1>
+    <p id="timer">Time: 60s</p>
+    <p id="wpmDisplay">WPM: 0</p>
+    <p id="quote">Loading...</p>
+    <textarea id="inputArea" placeholder="Start typing here..."></textarea>
+    <p id="result"></p>
+    <button onclick="startTest()">Restart</button>
+    <button onclick="submitTest()">Submit</button>
+
+    <script>
+        let timeLeft = 60;
+        let timerInterval;
+        let testStarted = false;
+        let startTime;
+
+        const paragraphs = [
+            "The quick brown fox jumps over the lazy dog. This sentence is often used as a typing exercise due to its inclusion of every letter in the English alphabet. Programming is a skill that improves with practice. Writing code every day, solving problems, and building projects are key steps to becoming a proficient developer.",
+            "Artificial intelligence is revolutionizing the world. From self-driving cars to virtual assistants, the applications of AI continue to expand in every field. A journey of a thousand miles begins with a single step. Consistency and perseverance are essential in achieving long-term goals.",
+            "The human brain is an incredible organ, capable of processing vast amounts of information in milliseconds. Continuous learning keeps the mind sharp and agile. Creativity is the ability to produce original and valuable ideas. It plays a crucial role in problem-solving and innovation across various industries.",
+            "Space exploration has led to significant technological advancements. The desire to explore the unknown has driven humanity to create new tools and expand our understanding of the universe. Healthy habits, such as regular exercise and a balanced diet, contribute to a long and fulfilling life. Small, consistent actions lead to significant improvements over time."
+        ];
+
+        function getRandomParagraph() {
+            const randomIndex = Math.floor(Math.random() * paragraphs.length);
+            document.getElementById("quote").innerText = paragraphs[randomIndex];
+        }
+
+        function startTest() {
+            document.getElementById("inputArea").value = "";
+            document.getElementById("result").innerText = "";
+            document.getElementById("wpmDisplay").innerText = "WPM: 0";
+            document.getElementById("inputArea").disabled = false;
+            getRandomParagraph();
+            timeLeft = 60;
+            testStarted = false;
+            clearInterval(timerInterval);
+        }
+
+        function startTimer() {
+            if (!testStarted) {
+                testStarted = true;
+                startTime = new Date();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
+            } else {
+                clearInterval(timerInterval);
+                submitTest();
+            }
+        }
+
+        function submitTest() {
+            clearInterval(timerInterval);
+            document.getElementById("inputArea").disabled = true;
+            checkTyping();
+        }
+
+        function checkTyping() {
+            const typedText = document.getElementById("inputArea").value.trim();
+            const originalText = document.getElementById("quote").innerText;
+            let correctChars = 0;
+            let typedWords = typedText.split(/\s+/).filter(word => word.length > 0);
+            let originalWords = originalText.split(/\s+/);
+
+            for (let i = 0; i < Math.min(typedText.length, originalText.length); i++) {
+                if (typedText[i] === originalText[i]) {
+                    correctChars++;
+                }
+            }
+
+            const elapsedTime = (new Date() - startTime) / 60000;
+            const wpm = Math.round((typedWords.length / elapsedTime));
+            
+            // Fix: Accuracy should be calculated based on total characters typed correctly, not original text length.
+            const accuracy = ((correctChars / typedText.length) * 100).toFixed(2);
+
+            document.getElementById("result").innerText = `Your typing speed: ${wpm} WPM | Accuracy: ${accuracy}%`;
+        }
+
+        document.getElementById("inputArea").addEventListener("keydown", startTimer);
+        getRandomParagraph();
+    </script>
+</body>
+</html>
